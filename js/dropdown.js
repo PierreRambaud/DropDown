@@ -100,21 +100,22 @@
          * Create dropdown child
          */
         var createChild = function createChild(container, opt) {
-            var blocOpt;
+            var blocOpt,
+            text = (opt.text() === '' ? ' ' : opt.text());
             if (isMultiple === true) {
                 blocOpt = $(settings.templateOptionMultiple);
                 blocOpt.children('label').append(opt.text());
                 container.children('span').text(settings.multipleLabel);
             } else {
                 blocOpt = $(settings.templateOption);
-                blocOpt.children('span').append(opt.text());
+                blocOpt.children('span').append(text);
             }
 
             if (opt.prop('selected') === true) {
                 if (isMultiple === true) {
                     blocOpt.find('input').prop('checked', true);
                 } else {
-                    container.children('span').text(opt.text());
+                    container.children('span').text(text);
                 }
             }
 
@@ -153,7 +154,7 @@
                 selectedItem.prop('selected', value);
                 if (isMultiple === false) {
                     parent.toggleClass('active');
-                    parent.children('span').text(opt.text());
+                    parent.children('span').text((opt.text() === '' ? ' ' : opt.text()));
                 } else {
                     opt.find('input').prop('checked', value);
                 }
@@ -321,4 +322,3 @@
 
     };
 })(jQuery);
-
