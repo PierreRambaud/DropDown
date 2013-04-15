@@ -36,9 +36,12 @@
 
         var settings      = {},
         $this = this,
-        currentId = null;
+        isMultiple = element.prop('multiple'),
+        currentId = null,
+        selectId = null;
         settings = $.extend({
             'templateOption':         '<li><span></span></li>',
+            'templateOptionGroup':    '<li class="optgroup"><span></span></li>',
             'templateOptionMultiple': '<li><label><input type="checkbox"></label></li>',
             'templateLayout':         '<div><span></span><ul class="dropdown"></ul></div>',
             'multipleLabel':          '-- select --',
@@ -62,11 +65,12 @@
          */
         var create = function create() {
             var bloc = $(settings.templateLayout);
-            if (element.attr('id') !== undefined) {
-                currentId = 'dropdown-' + element.attr('id');
-            } else {
-                currentId = 'dropdown-' + String.fromCharCode(Math.floor((Math.random()*20)+97))+Math.floor(Math.random()* 1000000);
+            if (element.attr('id') === undefined) {
+                element.attr('id', 'select-' + String.fromCharCode(Math.floor((Math.random()*20)+97))+Math.floor(Math.random()* 1000000));
             }
+
+            selectId = element.attr('id');
+            currentId = selectId + '-dropdown';
 
             bloc.attr('class', htmlDropDownClass + (settings.class !== undefined ? ' ' + settings.class : ''));
             bloc.attr('id', currentId);
@@ -76,7 +80,10 @@
                     var opt = $(this);
                     createChild(bloc, opt);
                 } else if ($(this).get(0).nodeName === 'OPTGROUP') {
-                    var optgroup = $(this);
+                    var optgroup = $(this),
+                    content = $(settings.templateOptionGroup);
+                    content.children('span').text(optgroup.prop('label'));
+                    bloc.children('ul').append(content);
                     optgroup.children().each(function() {
                         var opt = $(this);
                         createChild(bloc, opt);
@@ -94,7 +101,7 @@
          */
         var createChild = function createChild(container, opt) {
             var blocOpt;
-            if (element.prop('multiple') === true) {
+            if (isMultiple === true) {
                 blocOpt = $(settings.templateOptionMultiple);
                 blocOpt.children('label').append(opt.text());
                 container.children('span').text(settings.multipleLabel);
@@ -104,7 +111,7 @@
             }
 
             if (opt.prop('selected') === true) {
-                if (element.prop('multiple') === true) {
+                if (isMultiple === true) {
                     blocOpt.find('input').prop('checked', true);
                 } else {
                     container.children('span').text(opt.text());
@@ -131,7 +138,7 @@
                 return false;
             });
 
-            obj.find('li').on('click',function(event) {
+            obj.find('li:not(.optgroup)').on('click',function(event) {
                 event.stopPropagation();
                 event.preventDefault();
                 var opt = $(this),
@@ -144,7 +151,7 @@
                 }
 
                 selectedItem.prop('selected', value);
-                if (element.prop('multiple') === false) {
+                if (isMultiple === false) {
                     parent.toggleClass('active');
                     parent.children('span').text(opt.text());
                 } else {
@@ -174,25 +181,30 @@
                     return;
                 }
 
+                var obj = $('.' + htmlDropDownClass + '.active');
                 switch (event.keyCode) {
                     case keys.DOWN_ARROW:
                     case keys.RIGHT_ARROW:
                         event.preventDefault();
                         event.stopPropagation();
+                            $('#' + obj.attr('id').replace('-dropdown', '')).dropDown('move', 1);
                         break;
                     case keys.UP_ARROW:
                     case keys.LEFT_ARROW:
                         event.preventDefault();
                         event.stopPropagation();
+                            $('#' + obj.attr('id').replace('-dropdown', '')).dropDown('move', -1);
                         break;
                     case keys.ESCAPE:
                     case keys.ENTER:
                         event.preventDefault();
                         event.stopPropagation();
+                        $('#' + obj.attr('id').replace('-dropdown', '')).dropDown('close');
                         break;
                     default:
                     break;
                 }
+
             });
 
             specialEvents = true;
@@ -206,7 +218,7 @@
          */
         this.destroy = function destroy(keepData) {
             if(!keepData) {
-                $.data(element[0], 'dropdown', null);
+                $.data(element[0], 'DropDown', null);
             }
 
             $('#' + currentId).remove();
@@ -250,21 +262,57 @@
             intialize();
         };
 
+        /**
+         * Move to index
+         */
+        this.move = function move(index) {
+            var selectedIndex = element.prop('selectedIndex'),
+            position = element.prop('selectedIndex') + index,
+            items = element.find('option'),
+            item = $(items.get(position)),
+            input;
+
+            if (position > items.length || position < 0) {
+                return false;
+            }
+
+            if (item.parent('optgroup').prop('disabled') || item.prop('disabled')) {
+                return false;
+            }
+
+            if (!isMultiple) {
+                $('#' + currentId).children('span').text(item.text());
+            } else {
+                $('#' + currentId).find('li').find('input').prop('checked', false);
+                input = $('#' + currentId).find('li:eq(' + position + ')').find('input');
+                input.prop('checked', !input.prop('checked'));
+            }
+
+            element.prop('selectedIndex', position);
+        };
+
+        /**
+         * Values methods, can get an set values
+         */
+        this.values = function values(values) {
+        };
+
         intialize();
         initSpecialEvents();
     };
 
     $.fn.dropDown = function(method) {
+        var argv = arguments;
         return this.each(function() {
             /**
              * Method calling logic
              */
-            if ($.data(this, 'dropdown') && $.data(this, 'dropdown')[method] ) {
-                return $.data(this, 'dropdown')[method].apply(this, Array.prototype.slice.call(arguments, 1));
+            if ($.data(this, 'DropDown') && $.data(this, 'DropDown')[method] ) {
+                return $.data(this, 'DropDown')[method].apply(this, Array.prototype.slice.call(argv, 1));
             } else if (typeof method === 'object' || ! method) {
-                if (!$.data(this, 'dropdown')) {
-                    var mydropdown = new DropDown($(this), method);
-                    $(this).data('dropdown', mydropdown);
+                if (!$.data(this, 'DropDown')) {
+                    var myDropDown = new DropDown($(this), method);
+                    $(this).data('DropDown', myDropDown);
                 }
             } else {
                 $.error('Method ' +  method + ' does not exist on jQuery.dropDown');
