@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <title>jQuery DropDown</title>
+        <meta name="description" content="Custom DropDown" />
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <script type="text/javascript" src="js/modernizr.custom.79639.js"></script> 
+    </head>
+    <body style="background:#C2C2C2">
+        <div class="container">
+            <section class="main">
+                <select class="input-select">
+                    <option value="">test</option>
+                    <option value="1">test2</option>
+                    <option value="2">test3</option>
+                    <option value="3" disabled="disabled">test4</option>
+                </select>
+                <select class="input-select" multiple="multiple">
+                    <option value="">John Doe</option>
+                    <option value="1">Profile</option>
+                    <option value="2">Settings</option>
+                    <option value="3" selected="selected">Log out</option>
+                </select>
+                <select class="input-select">
+                   <optgroup label="Europe">
+                      <option>France</option>
+                      <option>Espagne</option>
+                      <option>Angleterre</option>
+                   </optgroup>
+                   <optgroup label="Amérique" disabled="disabled">
+                      <option>Etats-Unis</option>
+                      <option>Mexique</option>
+                      <option>Canada</option>
+                      <option>Brésil</option>
+                   </optgroup>
+                </select> 
+            </section>
+        </div>
+        <!-- jQuery if needed -->
+        <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="js/dropdown.js"></script>
+        <script type="text/javascript">
+
+        $(function() {
+            $('.input-select').dropDown({class: 'test'});
+        });
+        </script>
+    </body>
+</html>
