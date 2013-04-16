@@ -1,0 +1,14 @@
+{
+    "name": "pierrerambaud/dropdown",
+    "description": "Convert your select in beautiful dropdown.",
+    "require": {
+        "components/jquery": ">=1.9.1"
+    },
+    "license": "LGPL-3.0",
+    "authors": [
+        {
+            "name": "Pierre RAMBAUD",
+            "email": "pierre.rambaud86@gmail.com"
+        }
+    ]
+}
